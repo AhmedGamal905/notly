@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:notly/Helpers/Authentication.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:notly/Helpers/Constant/Colors.dart';
 import 'package:notly/Screens/Home.dart';

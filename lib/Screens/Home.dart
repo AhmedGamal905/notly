@@ -2,8 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:notly/Helpers/Authentication.dart';
 import 'package:notly/Helpers/Constant/Colors.dart';
+import 'package:notly/Models/NoteModel.dart';
 import 'package:notly/Screens/Auth/Login.dart';
 import 'package:intl/intl.dart';
+import 'package:notly/Services/FirebaseServices.dart';
+import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -30,6 +33,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    List _userList = Provider.of<List<Note>>(context);
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(color: CColors.whiteTheme),
@@ -136,119 +140,72 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: firestoreInstance
-            .collection('data')
-            .doc(_userUid)
-            .collection('notes')
-            .snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.hasError) {
-            return new Text('Error in receiving Notes: ${snapshot.error}');
-          }
-          switch (snapshot.connectionState) {
-            case ConnectionState.none:
-              return new Text('Not connected to the Stream or null');
-            case ConnectionState.waiting:
-              return Center(
-                child: SizedBox(
-                  height: 50.0,
-                  width: 50.0,
-                  child: new CircularProgressIndicator(
-                    color: CColors.lightRedTheme,
-                  ),
+      body: GridView.builder(
+        itemCount: _userList.length,
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
+        primary: false,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: (100 / 75),
+        ),
+        itemBuilder: (BuildContext context, int index) {
+          // _userList.length
+          return Padding(
+            padding: const EdgeInsets.all(6),
+            child: GestureDetector(
+              onTap: () => Navigator.pushNamed(context, '/ViewNote'),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: CColors.orangeTheme,
+                  borderRadius: BorderRadius.circular(8),
                 ),
-              );
-            case ConnectionState.active:
-              print("Stream has started but not finished");
-              if (snapshot.hasData) {
-                final notes = snapshot.data.docs;
-                if (notes.length > 0) {
-                  return new GridView.builder(
-                    itemCount: notes.length,
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    primary: false,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: (100 / 75),
-                    ),
-                    itemBuilder: (BuildContext context, int index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(6),
-                        child: GestureDetector(
-                          onTap: () =>
-                              Navigator.pushNamed(context, '/ViewNote'),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: CColors.orangeTheme,
-                              borderRadius: BorderRadius.circular(8),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: RichText(
+                          overflow: TextOverflow.clip,
+                          strutStyle: StrutStyle(fontSize: 12.0),
+                          text: TextSpan(
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 18,
                             ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Flexible(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: RichText(
-                                      overflow: TextOverflow.clip,
-                                      strutStyle: StrutStyle(fontSize: 12.0),
-                                      text: TextSpan(
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 18,
-                                        ),
-                                        text: notes[index]['title'],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
-                                    child: Text(
-                                      notes[index]['note'],
-                                      maxLines: 3,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: Text(
-                                    notes[index]['date'],
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                            text: _userList[index].title,
                           ),
                         ),
-                      );
-                    },
-                  );
-                }
-              }
-
-              return new Center(
-                child: new Text(
-                  "No Notes has been found",
+                      ),
+                    ),
+                    Container(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                        ),
+                        child: Text(
+                          _userList[index].note,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                        _userList[index].date,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              );
-
-            case ConnectionState.done:
-              return new Text('Streaming is done');
-          }
-
-          return Container(
-            child: new Text("No Notes has been found."),
+              ),
+            ),
           );
         },
       ),

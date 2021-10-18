@@ -2,8 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:notly/Helpers/Authentication.dart';
 import 'package:notly/Helpers/Constant/Colors.dart';
+import 'package:notly/Models/NoteModel.dart';
 import 'package:notly/Screens/Home.dart';
+import 'package:notly/Services/FirebaseServices.dart';
 import 'package:notly/Widgets/CustomButton.dart';
+
 import 'package:notly/Widgets/CustomField.dart';
 
 class AddNote extends StatefulWidget {
@@ -111,22 +114,14 @@ class _AddNoteState extends State<AddNote> {
             child: CustomButton(
               text: "Save",
               onTap: () {
-                firestoreInstance
-                    .collection("data")
-                    .doc(_userUid)
-                    .collection("notes")
-                    .doc()
-                    .set({
-                  "title": "My 855 Day",
-                  "date": "2020-5-19",
-                  "color": "CColors.lightRedTheme",
-                  "note":
-                      "Dribbble is the world’s leading community for creatives to share, grow, and get hired.Dribbble is the world’s leading community for creatives to share, grow, and get hired.Dribbble is the world’s leading community for creatives to share, grow, and get hired.",
-                }).then((_) {
-                  print("success!");
-                  Navigator.pushReplacement(
-                      context, MaterialPageRoute(builder: (context) => Home()));
-                });
+                FirebaseServices().addUserNotes(Note(
+                  note: 'My lol Day',
+                  date: '2020-5-19',
+                  color: 'ahmed',
+                  title: 'for creatives to share, grow, and get hired.',
+                ));
+                Navigator.pushReplacement(
+                    context, MaterialPageRoute(builder: (context) => Home()));
               },
               color: CColors.lightRedTheme,
             ),
