@@ -239,7 +239,7 @@ class _HomeState extends State<Home> {
 
               return new Center(
                 child: new Text(
-                  "No Notes has been found.",
+                  "No Notes has been found",
                 ),
               );
 
