@@ -1,12 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:notly/Helpers/Authentication.dart';
 import 'package:notly/Helpers/Constant/Colors.dart';
 import 'package:notly/Models/NoteModel.dart';
 import 'package:notly/Screens/Home.dart';
 import 'package:notly/Services/FirebaseServices.dart';
 import 'package:notly/Widgets/CustomButton.dart';
-
 import 'package:notly/Widgets/CustomField.dart';
 
 class AddNote extends StatefulWidget {
@@ -16,8 +14,48 @@ class AddNote extends StatefulWidget {
 
 class _AddNoteState extends State<AddNote> {
   final firestoreInstance = FirebaseFirestore.instance;
-  // Auth _auth = Auth();
-  final _userUid = Auth().getUser().uid;
+  final _formKey = GlobalKey<FormState>();
+  TextEditingController _titleController;
+  TextEditingController _noteController;
+  int colorIndex;
+  List<ColorsModel> colors;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController();
+    _noteController = TextEditingController();
+    colorIndex = 0;
+    colors = [
+      ColorsModel(color: '0xfffea632'),
+      ColorsModel(color: '0xfffff7ab'),
+      ColorsModel(color: '0xffacebba'),
+      ColorsModel(color: '0xffb2e1ff'),
+      ColorsModel(color: '0xffdbc0ff'),
+      ColorsModel(color: '0xfff29191'),
+    ];
+  }
+
+  void saveNote() {
+    String selectedColor = colors[colorIndex].color.toString();
+    if (!_formKey.currentState.validate()) return;
+    FirebaseServices().addUserNote(Note(
+      title: _titleController.text,
+      note: _noteController.text,
+      color: selectedColor,
+      date: DateTime.now().toString(),
+    ).toJson());
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => Home()));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _titleController?.dispose();
+    _noteController?.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,98 +74,115 @@ class _AddNoteState extends State<AddNote> {
         ),
         centerTitle: true,
       ),
-      body: ListView(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 8,
-            ),
-            child: CustomTextField(
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 8,
+              ),
+              child: CustomTextField(
+                maxLines: 1,
                 hint: "Enter Note Title",
                 icon: Icon(
                   Icons.post_add_rounded,
                   color: CColors.textFelidHintTheme,
                 ),
-                validator: null,
-                controller: null,
-                obscureText: false),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: TextFormField(
-              keyboardType: TextInputType.multiline,
-              // controller: ,
-              maxLines: 15,
-              textDirection: TextDirection.ltr,
-              cursorColor: CColors.lightRedTheme,
-              decoration: InputDecoration(
-                hintText: "Enter your note",
-                hintStyle: TextStyle(
-                  color: CColors.textFelidHintTheme,
-                  fontWeight: FontWeight.w400,
-                  fontFamily: "SFProText",
-                  fontStyle: FontStyle.normal,
-                  fontSize: 14.0,
-                ),
-                filled: true,
-                fillColor: CColors.textFelidTheme,
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: CColors.textFelidTheme,
-                  ),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: CColors.textFelidTheme,
-                  ),
-                ),
-                errorStyle: TextStyle(
-                  color: CColors.lightRedTheme,
-                  fontSize: 12,
-                ),
-                focusedErrorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: CColors.lightRedTheme,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: CColors.textFelidTheme,
-                  ),
-                ),
-                contentPadding: EdgeInsets.all(8.0),
-                errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: CColors.lightRedTheme,
-                  ),
-                ),
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Enter your note title';
+                  }
+                  return null;
+                },
+                controller: _titleController,
+                obscureText: false,
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CustomButton(
-              text: "Save",
-              onTap: () {
-                FirebaseServices().addUserNotes(Note(
-                  note: 'My lol Day',
-                  date: '2020-5-19',
-                  color: 'ahmed',
-                  title: 'for creatives to share, grow, and get hired.',
-                ));
-                Navigator.pushReplacement(
-                    context, MaterialPageRoute(builder: (context) => Home()));
+            CustomTextField(
+              hint: 'Enter your note',
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Enter your note first';
+                }
+                return null;
               },
-              color: CColors.lightRedTheme,
+              controller: _noteController,
+              obscureText: false,
+              maxLines: 15,
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: GridView.builder(
+                itemCount: colors.length,
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                primary: false,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  childAspectRatio: (100 / 75),
+                ),
+                itemBuilder: (BuildContext context, int index) {
+                  return ColorPickerContainer(
+                    isSelected: colorIndex == index,
+                    color: colors[index].color,
+                    onTap: () {
+                      setState(() => colorIndex = index);
+                    },
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CustomButton(
+                text: "Save",
+                onTap: saveNote,
+                color: CColors.lightRedTheme,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+}
+
+class ColorPickerContainer extends StatelessWidget {
+  final String color;
+  final Function onTap;
+  final bool isSelected;
+
+  const ColorPickerContainer({
+    @required this.color,
+    @required this.onTap,
+    @required this.isSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: GestureDetector(
+        onTap: onTap,
+        child: CustomPaint(
+          child: Container(
+            height: 45,
+            width: 45,
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? Color(int.parse(color)).withOpacity(0.5)
+                  : Color(int.parse(color)),
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ColorsModel {
+  String color;
+  ColorsModel({this.color});
 }

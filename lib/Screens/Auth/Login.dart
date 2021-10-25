@@ -101,6 +101,7 @@ class _LogInState extends State<LogIn> {
                   children: [
                     SizedBox(height: 40),
                     CustomTextField(
+                      maxLines: 1,
                       hint: "Enter email",
                       icon: Icon(
                         Icons.email_outlined,
@@ -116,6 +117,7 @@ class _LogInState extends State<LogIn> {
                       obscureText: false,
                     ),
                     CustomTextField(
+                      maxLines: 1,
                       hint: "Password",
                       icon: Icon(
                         Icons.vpn_key_outlined,

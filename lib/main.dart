@@ -8,8 +8,6 @@ import 'package:notly/Screens/Auth/SignUp.dart';
 
 import 'package:notly/Screens/Home.dart';
 import 'package:notly/Screens/ViewNote.dart';
-import 'package:notly/Services/FirebaseServices.dart';
-import 'package:provider/provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,28 +39,23 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamProvider(
-      create: (BuildContext context) => FirebaseServices().getUserNotes(),
-      initialData: null,
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          scaffoldBackgroundColor: CColors.whiteTheme,
-          // Color(0xff333333)
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        scaffoldBackgroundColor: CColors.whiteTheme,
+        // Color(0xff333333)
 
-          accentColor: CColors.lightRedTheme,
-          fontFamily: 'SFProText',
-        ),
-        // _currentScreen
-        home: _currentScreen,
-        routes: {
-          '/Home': (context) => Home(),
-          '/SignUp': (context) => SignUp(),
-          '/LogIn': (context) => LogIn(),
-          '/ViewNote': (context) => ViewNote(),
-          '/AddNote': (context) => AddNote(),
-        },
+        accentColor: CColors.lightRedTheme,
+        fontFamily: 'SFProText',
       ),
+      home: _currentScreen,
+      routes: {
+        '/Home': (context) => Home(),
+        '/SignUp': (context) => SignUp(),
+        '/LogIn': (context) => LogIn(),
+        '/ViewNote': (context) => ViewNote(),
+        '/AddNote': (context) => AddNote(),
+      },
     );
   }
 }

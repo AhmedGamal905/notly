@@ -126,6 +126,7 @@ class _SignUpState extends State<SignUp> {
                 ),
                 SizedBox(height: 40),
                 CustomTextField(
+                  maxLines: 1,
                   hint: "Enter your name",
                   icon: Icon(
                     Icons.person_outline,
@@ -141,6 +142,7 @@ class _SignUpState extends State<SignUp> {
                   obscureText: false,
                 ),
                 CustomTextField(
+                  maxLines: 1,
                   hint: "Enter email",
                   icon: Icon(
                     Icons.email_outlined,
@@ -156,6 +158,7 @@ class _SignUpState extends State<SignUp> {
                   obscureText: false,
                 ),
                 CustomTextField(
+                  maxLines: 1,
                   hint: "Password",
                   icon: Icon(
                     Icons.vpn_key_outlined,
@@ -171,6 +174,7 @@ class _SignUpState extends State<SignUp> {
                   obscureText: true,
                 ),
                 CustomTextField(
+                  maxLines: 1,
                   hint: "Re-Enter Password",
                   icon: Icon(
                     Icons.vpn_key_outlined,

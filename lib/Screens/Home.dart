@@ -5,8 +5,8 @@ import 'package:notly/Helpers/Constant/Colors.dart';
 import 'package:notly/Models/NoteModel.dart';
 import 'package:notly/Screens/Auth/Login.dart';
 import 'package:intl/intl.dart';
+import 'package:notly/Screens/ViewNote.dart';
 import 'package:notly/Services/FirebaseServices.dart';
-import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -15,25 +15,20 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   Auth _auth = Auth();
-  final _userUid = Auth().getUser().uid;
   final firestoreInstance = FirebaseFirestore.instance;
-  static final DateTime now = DateTime.now();
-  static final DateFormat formatter = DateFormat('yyyy-MM-dd');
-  final String currentDate = formatter.format(now);
 
   void logOut() async {
+    _auth.signOut();
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => LogIn(),
       ),
     );
-    _auth.signOut();
   }
 
   @override
   Widget build(BuildContext context) {
-    List _userList = Provider.of<List<Note>>(context);
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(color: CColors.whiteTheme),
@@ -140,72 +135,119 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),
-      body: GridView.builder(
-        itemCount: _userList.length,
-        scrollDirection: Axis.vertical,
-        shrinkWrap: true,
-        primary: false,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: (100 / 75),
-        ),
-        itemBuilder: (BuildContext context, int index) {
-          // _userList.length
-          return Padding(
-            padding: const EdgeInsets.all(6),
-            child: GestureDetector(
-              onTap: () => Navigator.pushNamed(context, '/ViewNote'),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: CColors.orangeTheme,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Flexible(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: RichText(
-                          overflow: TextOverflow.clip,
-                          strutStyle: StrutStyle(fontSize: 12.0),
-                          text: TextSpan(
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18,
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseServices().getUserNotes(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Error in receiving Notes: ${snapshot.error}'),
+            );
+          }
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+              return Text('Not connected to the Stream or null');
+            case ConnectionState.waiting:
+              return Text('Awaiting for interaction');
+            case ConnectionState.active:
+              if (snapshot.hasData) {
+                if (snapshot.data.docs.length > 0) {
+                  return GridView.builder(
+                    itemCount: snapshot.data.docs.length,
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    primary: false,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: (100 / 75),
+                    ),
+                    itemBuilder: (BuildContext context, int index) {
+                      Note note =
+                          Note.fromJson(snapshot.data.docs[index].data());
+                      DateTime parseDate = new DateFormat("yyyy-MM-dd HH:mm:ss")
+                          .parse(note.date);
+                      DateTime inputDate = DateTime.parse(parseDate.toString());
+                      DateFormat outputFormat = DateFormat('yyyy-MM-dd');
+                      String formatedDate = outputFormat.format(inputDate);
+                      return Padding(
+                        padding: const EdgeInsets.all(6),
+                        child: GestureDetector(
+                          onTap: () =>
+                              Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => ViewNote(
+                              id: snapshot.data.docs[index].id,
+                              title: note.title,
+                              note: note.note,
+                              color: note.color,
                             ),
-                            text: _userList[index].title,
+                          )),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Color(int.parse(note.color)),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Flexible(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: RichText(
+                                      overflow: TextOverflow.clip,
+                                      strutStyle: StrutStyle(fontSize: 12.0),
+                                      text: TextSpan(
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 18,
+                                        ),
+                                        text: note.title,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    child: Text(
+                                      note.note,
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Text(
+                                    formatedDate,
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                    Container(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                        ),
-                        child: Text(
-                          _userList[index].note,
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Text(
-                        _userList[index].date,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                  ],
+                      );
+                    },
+                  );
+                }
+              }
+              return Center(
+                child: Text(
+                  "No notes available try adding some notes",
                 ),
-              ),
-            ),
+              );
+
+            case ConnectionState.done:
+              return Text('Streaming is done');
+          }
+          return Center(
+            child: Text("No notes available"),
           );
         },
       ),

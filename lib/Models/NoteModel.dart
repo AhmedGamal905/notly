@@ -8,18 +8,21 @@ String noteToJson(List<Note> data) =>
 
 class Note {
   Note({
+    this.id,
     this.note,
     this.date,
     this.color,
     this.title,
   });
 
+  String id;
   String note;
   String date;
   String color;
   String title;
 
   factory Note.fromJson(Map<String, dynamic> json) => Note(
+        id: json["id"],
         note: json["note"],
         date: json["date"],
         color: json["color"],

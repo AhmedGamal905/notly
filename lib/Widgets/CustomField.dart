@@ -7,13 +7,14 @@ class CustomTextField extends StatelessWidget {
   final Function validator;
   final TextEditingController controller;
   final bool obscureText;
-  CustomTextField({
-    @required this.hint,
-    @required this.icon,
-    @required this.validator,
-    @required this.controller,
-    @required this.obscureText,
-  });
+  final int maxLines;
+  CustomTextField(
+      {@required this.hint,
+      this.icon,
+      @required this.validator,
+      @required this.controller,
+      @required this.obscureText,
+      @required this.maxLines});
 
   @override
   Widget build(BuildContext context) {
@@ -22,9 +23,10 @@ class CustomTextField extends StatelessWidget {
       child: TextFormField(
         controller: controller,
         obscureText: obscureText,
+        maxLines: maxLines,
         validator: validator,
         textDirection: TextDirection.ltr,
-        cursorColor: CColors.textFelidTheme,
+        cursorColor: CColors.lightRedTheme,
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(

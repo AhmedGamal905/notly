@@ -1,20 +1,56 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:notly/Helpers/Authentication.dart';
 import 'package:notly/Helpers/Constant/Colors.dart';
+import 'package:notly/Models/NoteModel.dart';
 import 'package:notly/Screens/Home.dart';
+import 'package:notly/Services/FirebaseServices.dart';
 import 'package:notly/Widgets/CustomButton.dart';
 import 'package:notly/Widgets/CustomField.dart';
 
 class ViewNote extends StatefulWidget {
+  final String id, title, note, color;
+  ViewNote({this.id, this.title, this.note, this.color});
   @override
   _ViewNoteState createState() => _ViewNoteState();
 }
 
 class _ViewNoteState extends State<ViewNote> {
   final firestoreInstance = FirebaseFirestore.instance;
-  // Auth _auth = Auth();
-  final userUid = Auth().getUser().uid;
+  final _formKey = GlobalKey<FormState>();
+  TextEditingController _titleController;
+  TextEditingController _noteController;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController();
+    _noteController = TextEditingController();
+    _titleController.text = widget.title;
+    _noteController.text = widget.note;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _titleController?.dispose();
+    _noteController?.dispose();
+  }
+
+  void updateNote() {
+    if (!_formKey.currentState.validate()) return;
+    FirebaseServices().updateUserNote(
+      Note(
+        title: _titleController.text,
+        note: _noteController.text,
+        color: widget.color,
+        date: DateTime.now().toString(),
+      ).toJson(),
+      widget.id,
+    );
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => Home()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,7 +60,7 @@ class _ViewNoteState extends State<ViewNote> {
         title: Title(
           color: CColors.blackTheme,
           child: Text(
-            "Note",
+            widget.title,
             style: TextStyle(
               color: CColors.whiteTheme,
               fontSize: 20,
@@ -36,7 +72,42 @@ class _ViewNoteState extends State<ViewNote> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: GestureDetector(
-              onTap: () {},
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    content: Text(
+                      'Remove note',
+                      style: TextStyle(
+                        fontSize: 19,
+                      ),
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          FirebaseServices().removeUserNote(widget.id);
+                          Navigator.pushReplacementNamed(context, '/Home');
+                        },
+                        child: Text(
+                          'Remove',
+                          style: TextStyle(
+                            color: CColors.lightRedTheme,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, 'Cancel'),
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(
+                            color: CColors.lightRedTheme,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
               child: Icon(
                 Icons.delete_outline,
                 size: 25,
@@ -45,88 +116,53 @@ class _ViewNoteState extends State<ViewNote> {
           )
         ],
       ),
-      body: ListView(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 8,
-            ),
-            child: CustomTextField(
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 8,
+              ),
+              child: CustomTextField(
+                maxLines: 1,
                 hint: "Enter Note Title",
                 icon: Icon(
                   Icons.post_add_rounded,
                   color: CColors.textFelidHintTheme,
                 ),
-                validator: null,
-                controller: null,
-                obscureText: false),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: TextFormField(
-              keyboardType: TextInputType.multiline,
-              // controller: ,
-              maxLines: 15,
-              textDirection: TextDirection.ltr,
-              cursorColor: CColors.lightRedTheme,
-              decoration: InputDecoration(
-                hintText: "Enter your note",
-                hintStyle: TextStyle(
-                  color: CColors.textFelidHintTheme,
-                  fontWeight: FontWeight.w400,
-                  fontFamily: "SFProText",
-                  fontStyle: FontStyle.normal,
-                  fontSize: 14.0,
-                ),
-                filled: true,
-                fillColor: CColors.textFelidTheme,
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: CColors.textFelidTheme,
-                  ),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: CColors.textFelidTheme,
-                  ),
-                ),
-                errorStyle: TextStyle(
-                  color: CColors.lightRedTheme,
-                  fontSize: 12,
-                ),
-                focusedErrorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: CColors.lightRedTheme,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: CColors.textFelidTheme,
-                  ),
-                ),
-                contentPadding: EdgeInsets.all(8.0),
-                errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: CColors.lightRedTheme,
-                  ),
-                ),
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Enter your note first';
+                  }
+                  return null;
+                },
+                controller: _titleController,
+                obscureText: false,
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CustomButton(
-              text: "Save",
-              onTap: () {},
-              color: CColors.lightRedTheme,
+            CustomTextField(
+              hint: 'Enter your note',
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Enter your note first';
+                }
+                return null;
+              },
+              controller: _noteController,
+              obscureText: false,
+              maxLines: 15,
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CustomButton(
+                text: "Save",
+                onTap: updateNote,
+                color: CColors.lightRedTheme,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
