@@ -5,7 +5,7 @@ import 'package:notly/Models/NoteModel.dart';
 import 'package:notly/Screens/Home.dart';
 import 'package:notly/Services/FirebaseServices.dart';
 import 'package:notly/Widgets/CustomButton.dart';
-import 'package:notly/Widgets/CustomField.dart';
+import 'package:notly/Widgets/CustomTextField.dart';
 
 class AddNote extends StatefulWidget {
   @override

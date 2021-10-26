@@ -9,4 +9,5 @@ class CColors {
   static const Color textFelidHintTheme = Color(0xffc1c1c1);
   static const Color lightBlackTheme = Color(0xff7a7a7a);
   static const Color lightRedTheme = Color(0xfffb6a69);
+  static const Color noteTextTheme = Color(0xfff8f8ff);
 }

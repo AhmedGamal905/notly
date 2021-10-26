@@ -1,12 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:notly/Helpers/Authentication.dart';
+import 'package:notly/Services/Authentication.dart';
 
 import 'package:notly/Helpers/Constant/Colors.dart';
 import 'package:notly/Screens/Home.dart';
 import 'package:notly/Widgets/CustomButton.dart';
-import 'package:notly/Widgets/CustomField.dart';
+import 'package:notly/Widgets/CustomTextField.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -96,13 +96,9 @@ class _SignUpState extends State<SignUp> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: CColors.whiteTheme,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: CColors.whiteTheme,
-        iconTheme: IconThemeData(
-          color: CColors.lightRedTheme,
-        ),
+        backgroundColor: CColors.lightRedTheme,
       ),
       body: ProgressHUD(
         child: Builder(builder: (context) {
@@ -111,6 +107,9 @@ class _SignUpState extends State<SignUp> {
             child: ListView(
               padding: const EdgeInsets.all(8.0),
               children: [
+                SizedBox(
+                  height: size.height * 0.1,
+                ),
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Container(
@@ -118,7 +117,6 @@ class _SignUpState extends State<SignUp> {
                     child: Text(
                       "Create your account, start enjoying the unlimited experience!",
                       style: TextStyle(
-                        color: CColors.blackTheme,
                         fontSize: 15,
                       ),
                     ),
@@ -194,7 +192,6 @@ class _SignUpState extends State<SignUp> {
                   child: Text(
                     "By creating this account you agree to all our terms and conditions.",
                     style: TextStyle(
-                      color: CColors.textFelidHintTheme,
                       fontSize: 12,
                     ),
                   ),

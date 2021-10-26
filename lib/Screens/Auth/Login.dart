@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:notly/Helpers/Authentication.dart';
+import 'package:notly/Services/Authentication.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:notly/Helpers/Constant/Colors.dart';
 import 'package:notly/Screens/Home.dart';
 import 'package:notly/Widgets/CustomButton.dart';
-import 'package:notly/Widgets/CustomField.dart';
+import 'package:notly/Widgets/CustomTextField.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LogIn extends StatefulWidget {
@@ -172,7 +172,6 @@ class _LogInState extends State<LogIn> {
                             Text(
                               "Not a member?",
                               style: TextStyle(
-                                color: CColors.blackTheme,
                                 fontSize: 11,
                               ),
                             ),

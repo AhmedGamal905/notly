@@ -1,12 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:notly/Helpers/Authentication.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:notly/Provider/ThemeProdiver.dart';
+import 'package:notly/Services/Authentication.dart';
 import 'package:notly/Helpers/Constant/Colors.dart';
 import 'package:notly/Models/NoteModel.dart';
 import 'package:notly/Screens/Auth/Login.dart';
 import 'package:intl/intl.dart';
 import 'package:notly/Screens/ViewNote.dart';
 import 'package:notly/Services/FirebaseServices.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -16,6 +20,12 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   Auth _auth = Auth();
   final firestoreInstance = FirebaseFirestore.instance;
+  bool appTheme = true;
+  @override
+  void initState() {
+    getAppTheme();
+    super.initState();
+  }
 
   void logOut() async {
     _auth.signOut();
@@ -27,8 +37,15 @@ class _HomeState extends State<Home> {
     );
   }
 
+  void getAppTheme() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    appTheme = prefs.get('isDark');
+    return;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(color: CColors.whiteTheme),
@@ -47,32 +64,25 @@ class _HomeState extends State<Home> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.pushNamed(context, '/AddNote'),
+        backgroundColor: CColors.lightRedTheme,
         child: const Icon(
           Icons.add,
+          color: CColors.whiteTheme,
           size: 30,
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       endDrawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.white,
-              ),
-              child: ListTile(
-                title: Text(
-                  "Hi, " + "Ahmed",
-                  style: TextStyle(
-                    color: Colors.grey,
-                  ),
-                ),
-                subtitle: Text(
-                  "Ahmed.gamal9@hotmail.com",
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              "assets/images/notes.png",
+              height: 200,
+              width: 200,
+            ),
+            SizedBox(
+              height: size.height * 0.05,
             ),
             ListTile(
               leading: Icon(
@@ -80,12 +90,21 @@ class _HomeState extends State<Home> {
                 color: CColors.lightRedTheme,
               ),
               title: Text(
-                'Theme',
+                appTheme ? "Dark" : "Light",
                 style: TextStyle(
                   color: CColors.textLigterTheme,
                 ),
               ),
-              onTap: () {},
+              onTap: () {
+                setState(() {
+                  getAppTheme();
+                  ThemeProvider themeProvider = Provider.of<ThemeProvider>(
+                    context,
+                    listen: false,
+                  );
+                  themeProvider.changeTheme();
+                });
+              },
             ),
             ListTile(
               leading: Icon(
@@ -106,6 +125,7 @@ class _HomeState extends State<Home> {
                       'LogOut!',
                       style: TextStyle(
                         fontSize: 19,
+                        color: Colors.black38,
                       ),
                     ),
                     actions: <Widget>[
@@ -132,6 +152,24 @@ class _HomeState extends State<Home> {
                 );
               },
             ),
+            Column(
+              children: [
+                Divider(
+                  thickness: 0.5,
+                  endIndent: 16,
+                  indent: 16,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "V 0.0.0",
+                    style: TextStyle(
+                      color: CColors.textLigterTheme,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -147,20 +185,26 @@ class _HomeState extends State<Home> {
             case ConnectionState.none:
               return Text('Not connected to the Stream or null');
             case ConnectionState.waiting:
-              return Text('Awaiting for interaction');
+              return Center(
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  child: CircularProgressIndicator(
+                    color: CColors.lightRedTheme,
+                  ),
+                ),
+              );
             case ConnectionState.active:
               if (snapshot.hasData) {
                 if (snapshot.data.docs.length > 0) {
-                  return GridView.builder(
+                  return StaggeredGridView.countBuilder(
                     itemCount: snapshot.data.docs.length,
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    primary: false,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: (100 / 75),
-                    ),
+                    crossAxisSpacing: 8,
+                    staggeredTileBuilder: (int index) => StaggeredTile.fit(2),
+                    mainAxisSpacing: 8,
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    crossAxisCount: 4,
+                    physics: BouncingScrollPhysics(),
                     itemBuilder: (BuildContext context, int index) {
                       Note note =
                           Note.fromJson(snapshot.data.docs[index].data());
@@ -169,67 +213,80 @@ class _HomeState extends State<Home> {
                       DateTime inputDate = DateTime.parse(parseDate.toString());
                       DateFormat outputFormat = DateFormat('yyyy-MM-dd');
                       String formatedDate = outputFormat.format(inputDate);
-                      return Padding(
-                        padding: const EdgeInsets.all(6),
-                        child: GestureDetector(
-                          onTap: () =>
-                              Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => ViewNote(
-                              id: snapshot.data.docs[index].id,
-                              title: note.title,
-                              note: note.note,
-                              color: note.color,
-                            ),
-                          )),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Color(int.parse(note.color)),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Flexible(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: RichText(
-                                      overflow: TextOverflow.clip,
-                                      strutStyle: StrutStyle(fontSize: 12.0),
-                                      text: TextSpan(
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 18,
-                                        ),
-                                        text: note.title,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  child: Padding(
+                      return GestureDetector(
+                        onTap: () =>
+                            Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => ViewNote(
+                            id: snapshot.data.docs[index].id,
+                            title: note.title,
+                            note: note.note,
+                            color: note.color,
+                          ),
+                        )),
+                        child: Container(
+                          clipBehavior: Clip.antiAlias,
+                          padding: EdgeInsets.all(10.0),
+                          decoration: BoxDecoration(
+                            color: Color(int.parse(note.color)),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
-                                    child: Text(
-                                      note.note,
-                                      maxLines: 3,
-                                      overflow: TextOverflow.ellipsis,
+                                        horizontal: 2),
+                                    child: Row(
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            note.title,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: CColors.noteTextTheme,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.start,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: Text(
+                                  SizedBox(
+                                    height: 4,
+                                  ),
+                                  Text(
                                     formatedDate,
                                     style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 13,
+                                      color: CColors.lightBlackTheme,
+                                      fontSize: 11,
                                     ),
+                                    maxLines: 1,
+                                    textAlign: TextAlign.start,
                                   ),
+                                  Divider(
+                                    color: CColors.whiteTheme,
+                                    thickness: 0.5,
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                note.note,
+                                style: TextStyle(
+                                  height: 1.2,
+                                  color: CColors.noteTextTheme,
                                 ),
-                              ],
-                            ),
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.start,
+                                maxLines: 8,
+                              )
+                            ],
                           ),
                         ),
                       );

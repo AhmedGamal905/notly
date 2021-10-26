@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:notly/Helpers/Authentication.dart';
+import 'package:notly/Services/Authentication.dart';
 
 class FirebaseServices {
   final _userUid = Auth().getUser().uid;

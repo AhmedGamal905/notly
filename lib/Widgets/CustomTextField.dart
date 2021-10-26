@@ -24,6 +24,9 @@ class CustomTextField extends StatelessWidget {
         controller: controller,
         obscureText: obscureText,
         maxLines: maxLines,
+        style: TextStyle(
+          color: CColors.blackTheme,
+        ),
         validator: validator,
         textDirection: TextDirection.ltr,
         cursorColor: CColors.lightRedTheme,
