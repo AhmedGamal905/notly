@@ -15,8 +15,8 @@ class ViewNote extends StatefulWidget {
 }
 
 class _ViewNoteState extends State<ViewNote> {
-  final firestoreInstance = FirebaseFirestore.instance;
-  final _formKey = GlobalKey<FormState>();
+  final FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController _titleController;
   TextEditingController _noteController;
 
