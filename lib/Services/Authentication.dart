@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Auth {
-  final _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<UserCredential> signUp(String email, String password) async {
     UserCredential authResult = await _auth.createUserWithEmailAndPassword(
@@ -11,10 +11,6 @@ class Auth {
     return authResult;
   }
 
-  Future<void> signOut() async {
-    await FirebaseAuth.instance.signOut();
-  }
-
   Future<UserCredential> signIn(String email, String password) async {
     UserCredential authResult = await _auth.signInWithEmailAndPassword(
       email: email,
@@ -22,6 +18,10 @@ class Auth {
     );
 
     return authResult;
+  }
+
+  Future<void> signOut() async {
+    await FirebaseAuth.instance.signOut();
   }
 
   User getUser() {

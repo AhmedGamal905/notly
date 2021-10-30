@@ -2,13 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:notly/Services/Authentication.dart';
-
 import 'package:notly/Helpers/Constant/Colors.dart';
 import 'package:notly/Screens/Home.dart';
 import 'package:notly/Widgets/CustomButton.dart';
 import 'package:notly/Widgets/CustomTextField.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUp extends StatefulWidget {
   @override
@@ -16,13 +14,12 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  final _formKey = GlobalKey<FormState>();
-  final firestoreInstance = FirebaseFirestore.instance;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
   Auth _auth = Auth();
   TextEditingController _nameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
-  TextEditingController _reEnterPasswordController = TextEditingController();
 
   @override
   void initState() {
@@ -30,7 +27,6 @@ class _SignUpState extends State<SignUp> {
     _nameController = TextEditingController();
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
-    _reEnterPasswordController = TextEditingController();
   }
 
   @override
@@ -39,7 +35,6 @@ class _SignUpState extends State<SignUp> {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _reEnterPasswordController.dispose();
   }
 
   Future<void> _onTapSingUp(context) async {
@@ -54,8 +49,6 @@ class _SignUpState extends State<SignUp> {
         return;
       } else {
         String uid = authResult.user.uid.toString();
-        SharedPreferences userUid = await SharedPreferences.getInstance();
-        userUid.setString('UID', uid);
         firestoreInstance.collection('users').doc(uid).set({
           'name': _nameController.text,
           'email': _emailController.text,
@@ -73,9 +66,15 @@ class _SignUpState extends State<SignUp> {
             'Oh something went wrong!',
             style: TextStyle(
               fontSize: 19,
+              color: CColors.lightRedTheme,
             ),
           ),
-          content: Text(e.message),
+          content: Text(
+            e.message,
+            style: TextStyle(
+              color: CColors.lightBlackTheme,
+            ),
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.pop(context, 'Cancel'),
@@ -104,107 +103,97 @@ class _SignUpState extends State<SignUp> {
         child: Builder(builder: (context) {
           return Form(
             key: _formKey,
-            child: ListView(
+            child: Padding(
               padding: const EdgeInsets.all(8.0),
-              children: [
-                SizedBox(
-                  height: size.height * 0.1,
-                ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    width: size.width / 1.5,
-                    child: Text(
-                      "Create your account, start enjoying the unlimited experience!",
-                      style: TextStyle(
-                        fontSize: 15,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Container(
+                          width: size.width / 1.2,
+                          child: Text(
+                            "Create your account, start enjoying the unlimited experience!",
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: CColors.lightBlackTheme,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                SizedBox(height: 40),
-                CustomTextField(
-                  maxLines: 1,
-                  hint: "Enter your name",
-                  icon: Icon(
-                    Icons.person_outline,
-                    color: CColors.textFelidHintTheme,
-                  ),
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Enter User Name';
-                    }
-                    return null;
-                  },
-                  controller: _nameController,
-                  obscureText: false,
-                ),
-                CustomTextField(
-                  maxLines: 1,
-                  hint: "Enter email",
-                  icon: Icon(
-                    Icons.email_outlined,
-                    color: CColors.textFelidHintTheme,
-                  ),
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Enter you Email';
-                    }
-                    return null;
-                  },
-                  controller: _emailController,
-                  obscureText: false,
-                ),
-                CustomTextField(
-                  maxLines: 1,
-                  hint: "Password",
-                  icon: Icon(
-                    Icons.vpn_key_outlined,
-                    color: CColors.textFelidHintTheme,
-                  ),
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Enter password';
-                    }
-                    return null;
-                  },
-                  controller: _passwordController,
-                  obscureText: true,
-                ),
-                CustomTextField(
-                  maxLines: 1,
-                  hint: "Re-Enter Password",
-                  icon: Icon(
-                    Icons.vpn_key_outlined,
-                    color: CColors.textFelidHintTheme,
-                  ),
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Re-Enter password';
-                    }
-                    return null;
-                  },
-                  controller: _reEnterPasswordController,
-                  obscureText: true,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "By creating this account you agree to all our terms and conditions.",
-                    style: TextStyle(
-                      fontSize: 12,
+                    SizedBox(height: 10),
+                    CustomTextField(
+                      maxLines: 1,
+                      hint: "Enter your name",
+                      icon: Icon(
+                        Icons.person_outline,
+                        color: CColors.textFelidHintTheme,
+                      ),
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return 'Enter User Name';
+                        }
+                        return null;
+                      },
+                      controller: _nameController,
+                      obscureText: false,
                     ),
-                  ),
+                    CustomTextField(
+                      maxLines: 1,
+                      hint: "Enter email",
+                      icon: Icon(
+                        Icons.email_outlined,
+                        color: CColors.textFelidHintTheme,
+                      ),
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return 'Enter you Email';
+                        }
+                        return null;
+                      },
+                      controller: _emailController,
+                      obscureText: false,
+                    ),
+                    CustomTextField(
+                      maxLines: 1,
+                      hint: "Password",
+                      icon: Icon(
+                        Icons.vpn_key_outlined,
+                        color: CColors.textFelidHintTheme,
+                      ),
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return 'Enter password';
+                        }
+                        return null;
+                      },
+                      controller: _passwordController,
+                      obscureText: true,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        "By creating this account you agree to all our terms and conditions.",
+                        style: TextStyle(
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: CustomButton(
+                        text: "Sign up",
+                        onTap: () async => await _onTapSingUp(context),
+                        color: CColors.lightRedTheme,
+                      ),
+                    ),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: CustomButton(
-                    text: "Sign up",
-                    onTap: () async => await _onTapSingUp(context),
-                    color: CColors.lightRedTheme,
-                  ),
-                ),
-              ],
+              ),
             ),
           );
         }),

@@ -1,41 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:notly/Helpers/Constant/Colors.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:notly/Services/PreferenceUtils.dart';
 
 class ThemeProvider extends ChangeNotifier {
-  ThemeData _selectedTheme;
+  PreferenceUtils _prefs;
+  ThemeData selectedTheme;
+
+  ThemeProvider() {
+    _prefs = PreferenceUtils.instancePreference;
+  }
+
+  bool get isDark => _prefs.getValue('isDark', hideDebugPrint: true);
+  String get nameTheme => this.isDark ? 'Dark' : 'Light';
+
   ThemeData light = ThemeData.light().copyWith(
     backgroundColor: CColors.whiteTheme,
-    accentColor: CColors.lightRedTheme,
-    textTheme: TextTheme(
-      bodyText1: TextStyle(
-        fontFamily: 'SFProText',
-      ),
-    ),
+    textTheme: ThemeData.light().textTheme.apply(
+          fontFamily: 'SFProText',
+        ),
+    primaryTextTheme: ThemeData.light().textTheme.apply(
+          fontFamily: 'SFProText',
+        ),
   );
   ThemeData dark = ThemeData.dark().copyWith(
     backgroundColor: Color(0xff121212),
-    accentColor: CColors.lightRedTheme,
-    textTheme: TextTheme(
-      bodyText1: TextStyle(
-        fontFamily: 'SFProText',
-      ),
-    ),
+    textTheme: ThemeData.dark().textTheme.apply(
+          fontFamily: 'SFProText',
+        ),
+    primaryTextTheme: ThemeData.dark().textTheme.apply(
+          fontFamily: 'SFProText',
+        ),
   );
-  ThemeProvider({bool isDark}) {
-    _selectedTheme = isDark ? dark : light;
-  }
-  ThemeData get getTheme => _selectedTheme;
 
-  void changeTheme() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (_selectedTheme == dark) {
-      _selectedTheme = light;
-      prefs.setBool('isDark', false);
+  void initTheme() {
+    selectedTheme = this.isDark ? dark : light;
+    notifyListeners();
+  }
+
+  void changeTheme() {
+    if (selectedTheme == dark) {
+      selectedTheme = light;
+      _prefs.saveValueWithKey('isDark', false);
     } else {
-      _selectedTheme = dark;
-      prefs.setBool('isDark', true);
+      selectedTheme = dark;
+      _prefs.saveValueWithKey('isDark', true);
     }
     notifyListeners();
   }

@@ -13,8 +13,8 @@ class AddNote extends StatefulWidget {
 }
 
 class _AddNoteState extends State<AddNote> {
-  final firestoreInstance = FirebaseFirestore.instance;
-  final _formKey = GlobalKey<FormState>();
+  final FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController _titleController;
   TextEditingController _noteController;
   int colorIndex;

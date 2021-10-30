@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:notly/Provider/ThemeProdiver.dart';
 import 'package:notly/Services/Authentication.dart';
 import 'package:notly/Helpers/Constant/Colors.dart';
@@ -9,8 +10,8 @@ import 'package:notly/Screens/Auth/Login.dart';
 import 'package:intl/intl.dart';
 import 'package:notly/Screens/ViewNote.dart';
 import 'package:notly/Services/FirebaseServices.dart';
+import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -19,15 +20,19 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   Auth _auth = Auth();
-  final firestoreInstance = FirebaseFirestore.instance;
-  bool appTheme = true;
+  final FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
+  PackageInfo _info;
+
   @override
   void initState() {
-    getAppTheme();
     super.initState();
+    Future.microtask(() async {
+      PackageInfo info = await PackageInfo.fromPlatform();
+      setState(() => _info = info);
+    });
   }
 
-  void logOut() async {
+  void _logOut() {
     _auth.signOut();
     Navigator.pushReplacement(
       context,
@@ -37,15 +42,9 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void getAppTheme() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    appTheme = prefs.get('isDark');
-    return;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(color: CColors.whiteTheme),
@@ -76,35 +75,26 @@ class _HomeState extends State<Home> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              "assets/images/notes.png",
-              height: 200,
-              width: 200,
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SvgPicture.asset(
+                "assets/images/notes.svg",
+                height: 150,
+              ),
             ),
-            SizedBox(
-              height: size.height * 0.05,
-            ),
+            SizedBox(height: size.height * 0.05),
             ListTile(
               leading: Icon(
                 Icons.wb_sunny_outlined,
                 color: CColors.lightRedTheme,
               ),
               title: Text(
-                appTheme ? "Dark" : "Light",
+                context.watch<ThemeProvider>().nameTheme,
                 style: TextStyle(
                   color: CColors.textLigterTheme,
                 ),
               ),
-              onTap: () {
-                setState(() {
-                  getAppTheme();
-                  ThemeProvider themeProvider = Provider.of<ThemeProvider>(
-                    context,
-                    listen: false,
-                  );
-                  themeProvider.changeTheme();
-                });
-              },
+              onTap: () => context.read<ThemeProvider>().changeTheme(),
             ),
             ListTile(
               leading: Icon(
@@ -125,12 +115,11 @@ class _HomeState extends State<Home> {
                       'LogOut!',
                       style: TextStyle(
                         fontSize: 19,
-                        color: Colors.black38,
                       ),
                     ),
                     actions: <Widget>[
                       TextButton(
-                        onPressed: logOut,
+                        onPressed: _logOut,
                         child: Text(
                           'Logout',
                           style: TextStyle(
@@ -152,23 +141,19 @@ class _HomeState extends State<Home> {
                 );
               },
             ),
-            Column(
-              children: [
-                Divider(
-                  thickness: 0.5,
-                  endIndent: 16,
-                  indent: 16,
+            Divider(
+              thickness: 0.5,
+              endIndent: 16,
+              indent: 16,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "V ${_info?.version ?? '0.0.1'}",
+                style: TextStyle(
+                  color: CColors.textLigterTheme,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "V 0.0.0",
-                    style: TextStyle(
-                      color: CColors.textLigterTheme,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ],
         ),
@@ -240,7 +225,8 @@ class _HomeState extends State<Home> {
                                 children: [
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 2),
+                                      horizontal: 2,
+                                    ),
                                     child: Row(
                                       children: [
                                         Flexible(
@@ -258,9 +244,7 @@ class _HomeState extends State<Home> {
                                       ],
                                     ),
                                   ),
-                                  SizedBox(
-                                    height: 4,
-                                  ),
+                                  SizedBox(height: 4),
                                   Text(
                                     formatedDate,
                                     style: TextStyle(

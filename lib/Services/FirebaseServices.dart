@@ -3,7 +3,7 @@ import 'package:notly/Services/Authentication.dart';
 
 class FirebaseServices {
   final _userUid = Auth().getUser().uid;
-  final firestoreInstance = FirebaseFirestore.instance;
+  final FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
 
   Stream getUserNotes() {
     return firestoreInstance

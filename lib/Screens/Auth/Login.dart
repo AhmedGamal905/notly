@@ -1,14 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:notly/Services/Authentication.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:notly/Helpers/Constant/Colors.dart';
 import 'package:notly/Screens/Home.dart';
 import 'package:notly/Widgets/CustomButton.dart';
 import 'package:notly/Widgets/CustomTextField.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LogIn extends StatefulWidget {
   @override
@@ -17,8 +16,8 @@ class LogIn extends StatefulWidget {
 
 class _LogInState extends State<LogIn> {
   Auth _auth = Auth();
-  final _formKey = GlobalKey<FormState>();
-  final firestoreInstance = FirebaseFirestore.instance;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
 
   TextEditingController _emailController;
   TextEditingController _passwordController;
@@ -46,9 +45,7 @@ class _LogInState extends State<LogIn> {
       UserCredential authResult =
           await _auth.signIn(_emailController.text, _passwordController.text);
       progress.dismiss();
-      String uid = authResult.user.uid.toString();
-      SharedPreferences userUid = await SharedPreferences.getInstance();
-      userUid.setString('UID', uid);
+
       if (authResult == null) {
         return;
       } else {
@@ -66,9 +63,15 @@ class _LogInState extends State<LogIn> {
             'Oh something went wrong!',
             style: TextStyle(
               fontSize: 19,
+              color: CColors.lightRedTheme,
             ),
           ),
-          content: Text(e.message),
+          content: Text(
+            e.message,
+            style: TextStyle(
+              color: CColors.lightBlackTheme,
+            ),
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.pop(context, 'Cancel'),
@@ -87,7 +90,6 @@ class _LogInState extends State<LogIn> {
 
   @override
   Widget build(BuildContext context) {
-    // final size = MediaQuery.of(context).size;
     return Scaffold(
       body: ProgressHUD(
         child: Builder(
@@ -99,7 +101,13 @@ class _LogInState extends State<LogIn> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(height: 40),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SvgPicture.asset(
+                        "assets/images/notes.svg",
+                        height: 150,
+                      ),
+                    ),
                     CustomTextField(
                       maxLines: 1,
                       hint: "Enter email",
@@ -137,7 +145,8 @@ class _LogInState extends State<LogIn> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: GestureDetector(
-                          onTap: () {},
+                          onTap: () =>
+                              Navigator.pushNamed(context, '/ForgotPassword'),
                           child: Text(
                             "Forgot password?",
                             style: TextStyle(
@@ -161,7 +170,7 @@ class _LogInState extends State<LogIn> {
                       children: [
                         Expanded(
                           child: Divider(
-                            color: Colors.grey.shade100,
+                            color: Colors.grey.shade300,
                             thickness: 1,
                             indent: 8,
                             endIndent: 8,
@@ -173,6 +182,7 @@ class _LogInState extends State<LogIn> {
                               "Not a member?",
                               style: TextStyle(
                                 fontSize: 11,
+                                color: CColors.lightBlackTheme,
                               ),
                             ),
                             SizedBox(width: 4),
