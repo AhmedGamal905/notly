@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:notly/Helpers/Constant/Colors.dart';
 import 'package:notly/Models/NoteModel.dart';
-import 'package:notly/Screens/Home.dart';
 import 'package:notly/Services/FirebaseServices.dart';
 import 'package:notly/Widgets/CustomButton.dart';
 import 'package:notly/Widgets/CustomTextField.dart';
