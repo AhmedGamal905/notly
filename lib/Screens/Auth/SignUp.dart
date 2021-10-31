@@ -111,6 +111,7 @@ class _SignUpState extends State<SignUp> {
             key: _formKey,
             child: Center(
               child: ListView(
+                physics: BouncingScrollPhysics(),
                 shrinkWrap: true,
                 padding: const EdgeInsets.all(8.0),
                 children: [
