@@ -5,7 +5,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:notly/Services/Authentication.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:notly/Helpers/Constant/Colors.dart';
-import 'package:notly/Screens/Home.dart';
 import 'package:notly/Widgets/CustomButton.dart';
 import 'package:notly/Widgets/CustomTextField.dart';
 
@@ -49,8 +48,8 @@ class _LogInState extends State<LogIn> {
       if (authResult == null) {
         return;
       } else {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => Home()));
+        Navigator.of(context)
+            .pushNamedAndRemoveUntil('/Home', (Route<dynamic> route) => false);
       }
     } on FirebaseAuthException catch (e) {
       progress.dismiss();
@@ -91,23 +90,47 @@ class _LogInState extends State<LogIn> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          "LogIn",
+          style: TextStyle(
+            fontSize: 18,
+          ),
+        ),
+      ),
       body: ProgressHUD(
         child: Builder(
           builder: (context) {
             return Form(
               key: _formKey,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+              child: Center(
+                child: ListView(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.all(8.0),
                   children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Welcome back,",
+                          style: TextStyle(
+                            fontSize: 25,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: SvgPicture.asset(
                         "assets/images/notes.svg",
-                        height: 150,
+                        height: 120,
                       ),
                     ),
+                    SizedBox(height: 20),
                     CustomTextField(
                       maxLines: 1,
                       hint: "Enter email",
@@ -201,7 +224,7 @@ class _LogInState extends State<LogIn> {
                         ),
                         Expanded(
                           child: Divider(
-                            color: Colors.grey.shade100,
+                            color: Colors.grey.shade300,
                             thickness: 1,
                             indent: 8,
                             endIndent: 8,
@@ -209,6 +232,7 @@ class _LogInState extends State<LogIn> {
                         ),
                       ],
                     ),
+                    SizedBox(height: 10),
                   ],
                 ),
               ),

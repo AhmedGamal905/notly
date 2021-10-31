@@ -33,7 +33,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     firebaseAuth
         .sendPasswordResetEmail(email: _emailController.text)
         .then((value) {
-      Navigator.pushNamed(context, '/LogIn');
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil('/LogIn', (Route<dynamic> route) => false);
       showDialog(
         context: context,
         builder: (BuildContext context) => AlertDialog(
@@ -87,6 +88,17 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          "Forgot password!",
+          style: TextStyle(
+            fontSize: 17,
+          ),
+        ),
+      ),
       body: Form(
         key: _formKey,
         child: Column(

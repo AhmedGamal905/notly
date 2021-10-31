@@ -10,10 +10,15 @@ class ThemeProvider extends ChangeNotifier {
     _prefs = PreferenceUtils.instancePreference;
   }
 
-  bool get isDark => _prefs.getValue('isDark', hideDebugPrint: true);
+  bool get isDark => _prefs.getValue('isDark', hideDebugPrint: true) ?? false;
   String get nameTheme => this.isDark ? 'Dark' : 'Light';
 
   ThemeData light = ThemeData.light().copyWith(
+    appBarTheme: AppBarTheme(
+      titleTextStyle: TextStyle(
+        color: CColors.blackTheme,
+      ),
+    ),
     backgroundColor: CColors.whiteTheme,
     textTheme: ThemeData.light().textTheme.apply(
           fontFamily: 'SFProText',

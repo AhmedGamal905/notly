@@ -6,7 +6,6 @@ import 'package:notly/Provider/ThemeProdiver.dart';
 import 'package:notly/Services/Authentication.dart';
 import 'package:notly/Helpers/Constant/Colors.dart';
 import 'package:notly/Models/NoteModel.dart';
-import 'package:notly/Screens/Auth/Login.dart';
 import 'package:intl/intl.dart';
 import 'package:notly/Screens/ViewNote.dart';
 import 'package:notly/Services/FirebaseServices.dart';
@@ -34,12 +33,8 @@ class _HomeState extends State<Home> {
 
   void _logOut() {
     _auth.signOut();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => LogIn(),
-      ),
-    );
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil('/LogIn', (Route<dynamic> route) => false);
   }
 
   @override
@@ -187,7 +182,7 @@ class _HomeState extends State<Home> {
                     crossAxisSpacing: 8,
                     staggeredTileBuilder: (int index) => StaggeredTile.fit(2),
                     mainAxisSpacing: 8,
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    padding: EdgeInsets.all(8),
                     crossAxisCount: 4,
                     physics: BouncingScrollPhysics(),
                     itemBuilder: (BuildContext context, int index) {

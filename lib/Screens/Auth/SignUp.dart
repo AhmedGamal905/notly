@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:notly/Services/Authentication.dart';
 import 'package:notly/Helpers/Constant/Colors.dart';
-import 'package:notly/Screens/Home.dart';
 import 'package:notly/Widgets/CustomButton.dart';
 import 'package:notly/Widgets/CustomTextField.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -53,8 +52,8 @@ class _SignUpState extends State<SignUp> {
           'name': _nameController.text,
           'email': _emailController.text,
         });
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => Home()));
+        Navigator.of(context)
+            .pushNamedAndRemoveUntil('/Home', (Route<dynamic> route) => false);
       }
     } on FirebaseAuthException catch (e) {
       progress.dismiss();
@@ -97,102 +96,108 @@ class _SignUpState extends State<SignUp> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: CColors.lightRedTheme,
+        backgroundColor: Colors.transparent,
+        centerTitle: true,
+        title: Text(
+          "Create an account",
+          style: TextStyle(
+            fontSize: 17,
+          ),
+        ),
       ),
       body: ProgressHUD(
         child: Builder(builder: (context) {
           return Form(
             key: _formKey,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Container(
-                          width: size.width / 1.2,
-                          child: Text(
-                            "Create your account, start enjoying the unlimited experience!",
-                            style: TextStyle(
-                              fontSize: 20,
-                              color: CColors.lightBlackTheme,
-                            ),
+            child: Center(
+              child: ListView(
+                shrinkWrap: true,
+                padding: const EdgeInsets.all(8.0),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Container(
+                        width: size.width / 1.2,
+                        child: Text(
+                          "Create your account, start enjoying the unlimited experience!",
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: CColors.lightBlackTheme,
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(height: 10),
-                    CustomTextField(
-                      maxLines: 1,
-                      hint: "Enter your name",
-                      icon: Icon(
-                        Icons.person_outline,
-                        color: CColors.textFelidHintTheme,
-                      ),
-                      validator: (value) {
-                        if (value.isEmpty) {
-                          return 'Enter User Name';
-                        }
-                        return null;
-                      },
-                      controller: _nameController,
-                      obscureText: false,
+                  ),
+                  SizedBox(height: 30),
+                  CustomTextField(
+                    maxLines: 1,
+                    hint: "Enter your name",
+                    icon: Icon(
+                      Icons.person_outline,
+                      color: CColors.textFelidHintTheme,
                     ),
-                    CustomTextField(
-                      maxLines: 1,
-                      hint: "Enter email",
-                      icon: Icon(
-                        Icons.email_outlined,
-                        color: CColors.textFelidHintTheme,
-                      ),
-                      validator: (value) {
-                        if (value.isEmpty) {
-                          return 'Enter you Email';
-                        }
-                        return null;
-                      },
-                      controller: _emailController,
-                      obscureText: false,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Enter User Name';
+                      }
+                      return null;
+                    },
+                    controller: _nameController,
+                    obscureText: false,
+                  ),
+                  CustomTextField(
+                    maxLines: 1,
+                    hint: "Enter email",
+                    icon: Icon(
+                      Icons.email_outlined,
+                      color: CColors.textFelidHintTheme,
                     ),
-                    CustomTextField(
-                      maxLines: 1,
-                      hint: "Password",
-                      icon: Icon(
-                        Icons.vpn_key_outlined,
-                        color: CColors.textFelidHintTheme,
-                      ),
-                      validator: (value) {
-                        if (value.isEmpty) {
-                          return 'Enter password';
-                        }
-                        return null;
-                      },
-                      controller: _passwordController,
-                      obscureText: true,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Enter you Email';
+                      }
+                      return null;
+                    },
+                    controller: _emailController,
+                    obscureText: false,
+                  ),
+                  CustomTextField(
+                    maxLines: 1,
+                    hint: "Password",
+                    icon: Icon(
+                      Icons.vpn_key_outlined,
+                      color: CColors.textFelidHintTheme,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "By creating this account you agree to all our terms and conditions.",
-                        style: TextStyle(
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: CustomButton(
-                        text: "Sign up",
-                        onTap: () async => await _onTapSingUp(context),
-                        color: CColors.lightRedTheme,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Enter password';
+                      }
+                      return null;
+                    },
+                    controller: _passwordController,
+                    obscureText: true,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "By creating this account you agree to all our terms and conditions.",
+                      style: TextStyle(
+                        fontSize: 12,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: CustomButton(
+                      text: "Sign up",
+                      onTap: () async => await _onTapSingUp(context),
+                      color: CColors.lightRedTheme,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                ],
               ),
             ),
           );

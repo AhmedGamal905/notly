@@ -45,8 +45,8 @@ class _AddNoteState extends State<AddNote> {
       color: selectedColor,
       date: DateTime.now().toString(),
     ).toJson());
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => Home()));
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil('/Home', (Route<dynamic> route) => false);
   }
 
   @override
