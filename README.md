@@ -2,6 +2,16 @@
 
 A note app build-in Flutter Dart, Which can help you on your daily tasks or lists such as your shopping list.
 
+## Features
+
+- Authentication using firebase (create an account, forgot password, login using an email).
+- Firestore Database as a back-end.
+- State management using provider.
+- Show your notes, add or edit them on any device using the same email.
+- Dark and Light Theme using provider.
+- Choose note container color.
+
+
 ## Light Theme Screenshots 
 <p align="center">
     <img src="/Screenshots/1.jpg?raw=true" height="600">
