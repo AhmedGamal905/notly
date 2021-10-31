@@ -24,18 +24,3 @@ A note app build-in Flutter Dart, Which can help you on your daily tasks or list
     <img src="/Screenshots/06.jpg?raw=true" height="600">
     <img src="/Screenshots/07.jpg?raw=true" height="600">
 </p>
-
-# Packages used in this app
-
- #### firebase_auth
- #### firebase_core
- #### cloud_firestore
- #### firebase_database
- #### flutter_progress_hud
- #### package_info
- #### flutter_svg
- #### shared_preferences
- #### provider
- #### flutter_staggered_grid_view
- #### intl
- 
