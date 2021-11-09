@@ -2,6 +2,8 @@
 
 A note app build-in Flutter Dart, Which can help you on your daily tasks or lists such as your shopping list.
 
+[inshortsClone.apk](https://www.mediafire.com/file/oq46wzo9l1unvcw/notly.apk/file)
+
 ## Features
 
 - Authentication using firebase (create an account, forgot password, login using an email).
